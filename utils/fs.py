@@ -1,0 +1,197 @@
+import os
+import shutil
+import hashlib
+import json
+import chardet
+import regex as re
+from utils.crypto import Crypto
+from utils.log import Log
+from utils.excel2json import ExcelParser
+
+
+class FileUtils:
+    """docstring for FileUtils"""
+    def __init__(self):
+        super(FileUtils, self).__init__()
+
+    @staticmethod
+    def check_path_in_rule(path, rule):
+        pattern = re.compile(rule)
+        groups = pattern.findall(path)
+        return len(groups) > 0
+
+    @staticmethod
+    def check_path_in_rules(path, rules):
+        if rules is None:
+            return True
+        if len(rules) is None:
+            return True
+        for rule in rules:
+            if FileUtils.check_path_in_rule(path, rule):
+                return True
+        return False
+
+    @staticmethod
+    def copy_files_in_dir(src, dst, rules=None):
+        if not os.path.isdir(dst):
+            os.makedirs(dst)
+        for item in os.listdir(src):
+            path = os.path.join(src, item)
+            if os.path.isfile(path) and FileUtils.check_path_in_rules(path, rules):
+                shutil.copy(path, dst)
+
+            if os.path.isdir(path):
+                new_dst = os.path.join(dst, item)
+                if not os.path.isdir(new_dst):
+                    os.makedirs(new_dst)
+                    FileUtils.copy_files_in_dir(path, new_dst, rules)
+
+    @staticmethod
+    def copy_files_in_dir_with_replacement(src, old, new):
+        dst = src.replace(old, new)
+        if not os.path.isdir(dst):
+            os.makedirs(dst)
+        for item in os.listdir(src):
+            path = os.path.join(src, item)
+            if os.path.isfile(path):
+                shutil.copy(path, dst)
+
+            if os.path.isdir(path):
+                FileUtils.copy_files_in_dir_with_replacement(path, old, new)
+
+
+
+    @staticmethod
+    def copy_files_in_dir_if_newer(src, dst, cpstat=False):
+        if not os.path.isdir(src):
+            return
+
+        if not os.path.isdir(dst):
+            os.makedirs(dst)
+
+        for item in os.listdir(src):
+            path = os.path.join(src, item)
+            if os.path.isfile(path):
+                copy_dst = dst
+                copy_dst_path = copy_dst + '\\' + os.path.split(path)[1]
+                if os.path.isfile(copy_dst_path) and os.stat(copy_dst_path).st_mtime >= os.stat(path).st_mtime:
+                    pass
+                else:
+                    # Log.i path
+                    if cpstat:
+                        shutil.copy2(path, copy_dst)
+                    else:
+                        shutil.copy(path, copy_dst)
+            if os.path.isdir(path):
+                new_dst = os.path.join(dst, item)
+                FileUtils.copy_files_in_dir_if_newer(path, new_dst, cpstat)
+
+    @staticmethod
+    def remove_files_in_dir(src, ext):
+        for item in os.listdir(src):
+            path = os.path.join(src, item)
+            if os.path.isfile(path):
+                if os.path.splitext(path)[1] == ext:
+                    os.remove(path)
+                    if os.path.isfile(path.replace(".json", ".skel")) is False:
+                        Log.i(path)
+
+            if os.path.isdir(path):
+                new_dst = os.path.join(src, item)
+                FileUtils.remove_files_in_dir(new_dst, ext)
+
+    @staticmethod
+    def remove_empty_dirs(dir_path):
+        for item in os.listdir(dir_path):
+            path = os.path.join(dir_path, item)
+            if os.path.isdir(path):
+                FileUtils.remove_empty_dirs(path)
+
+        if not os.listdir(dir_path):
+            shutil.rmtree(dir_path)
+
+    @staticmethod
+    def get_text_md5(text):
+        hl = hashlib.md5()
+        hl.update(text.encode(encoding='utf-8'))
+        return hl.hexdigest()
+        pass
+
+    @staticmethod
+    def save_json_file(path, data):
+        with open(path, 'w') as json_file:
+            json_file.write(json.dumps(data))
+
+    @staticmethod
+    def load_json_file(path):
+        with open(path) as json_file:
+            data = json.load(json_file)
+            return data
+
+    @staticmethod
+    def load_file(path):
+        file = open(path, "r")
+        buff = file.read()
+        file.close()
+        return buff
+
+    @staticmethod
+    def encrypt_file(path, key, sign):
+        file = open(path, "rb+")
+
+        buff = file.read()
+        pre_sign = str(buff[0:len(sign)])
+
+        if pre_sign == sign:
+            Log.i('have entrypt :' + path)
+        else:
+            Log.i('entrypt file :' + path)
+            bytes = Crypto.encrypt_by_xxtea(buff, key)
+            bytes = sign + bytes
+            file.seek(0)
+            file.write(bytes)
+        file.close()
+
+    @staticmethod
+    def excel_to_json(path, export_path):
+        ep = ExcelParser()
+        data_map = ep.parse(path)
+        file = open(export_path, "w")
+        json.dump(data_map, file)
+        file.close()
+
+
+    @staticmethod
+    def decode_to_utf8(buff):
+        encoding_type = chardet.detect(buff)
+        try:
+            buff = buff.decode(encoding_type['encoding'])
+        except Exception as e:
+            try:
+                buff = buff.decode('GB18030')
+            except Exception as e:
+                raise e
+
+        buff = buff.encode('utf-8')
+        return buff
+
+
+    @staticmethod
+    def change_file_to_utf8(path):
+        file = open(path, "rb")
+        buff = file.read()
+        encoding_type = chardet.detect(buff)
+        try:
+            buff = buff.decode(encoding_type['encoding'])
+        except Exception as e:
+            try:
+                buff = buff.decode('GB18030')
+            except Exception as e:
+                raise e
+
+        buff = buff.encode('utf-8')
+        file.close()
+        file2 = open(path, "wb")
+        file2.write(buff)
+        file2.close()
+        return buff
