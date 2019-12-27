@@ -1,4 +1,4 @@
-from utils.log import Log
+from frameworks.utils.log import Log
 
 class Plugin(object):
     """docstring for Plugin"""

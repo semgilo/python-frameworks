@@ -10,12 +10,14 @@ class Log:
     RESET = '\033[0m'
     BLUE = '\033[36m'
 
+    level = 0
     @staticmethod
     def _format(s):
         return s
 
     @staticmethod
     def _print(s, color=None, format=True):
+        s = str(s)
         if color and sys.stdout.isatty() and sys.platform != 'win32':
             print(color + s + Log.RESET)
         else:
@@ -23,20 +25,27 @@ class Log:
 
     @staticmethod
     def d(s, format=True):
-        Log._print(s, Log.MAGENTA)
+        if Log.level <= 0:
+            Log._print(s, Log.MAGENTA)
 
     @staticmethod
     def i(s, format=True):
-        Log._print(s, Log.GREEN)
+        if Log.level <= 0:
+            Log._print(s, Log.GREEN)
 
     @staticmethod
     def w(s, format=True):
-        Log._print(s, Log.YELLOW)
+        if Log.level <= 1:
+            Log._print(s, Log.YELLOW)
 
     @staticmethod
     def e(s, format=True):
-        Log._print(s, Log.RED)
+        if Log.level <= 2:
+            Log._print(s, Log.RED)
 
     @staticmethod
     def t(s, format=True):
-        Log._print(s, Log.BLUE)
+        if Log.level <= 1:
+            Log._print("------------------------------------------", Log.BLUE)
+            Log._print(s, Log.BLUE)
+            Log._print("------------------------------------------", Log.BLUE)

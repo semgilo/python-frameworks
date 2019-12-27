@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from utils.log import Log
+from frameworks.utils.log import Log
 import getopt
 
 class Operation(object):

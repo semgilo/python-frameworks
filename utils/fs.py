@@ -4,9 +4,19 @@ import hashlib
 import json
 import chardet
 import regex as re
-from utils.crypto import Crypto
-from utils.log import Log
-from utils.excel2json import ExcelParser
+from frameworks.utils.crypto import Crypto
+from frameworks.utils.log import Log
+from frameworks.utils.excel2json import ExcelParser
+
+import configparser
+
+class MyConfigParser(configparser.ConfigParser):
+    def __init__(self, defaults=None, allow_no_value=True):
+        configparser.ConfigParser.__init__(self, defaults=defaults,
+                                           allow_no_value=allow_no_value)
+
+    def optionxform(self, optionstr):
+        return optionstr
 
 
 class FileUtils:
@@ -195,3 +205,9 @@ class FileUtils:
         file2.write(buff)
         file2.close()
         return buff
+
+    @staticmethod
+    def load_ini_file(path):
+        cp = MyConfigParser()
+        cp.read(path)
+        return cp

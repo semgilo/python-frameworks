@@ -1,7 +1,7 @@
 import os
 import xlrd
 import json
-from utils.log import Log
+from frameworks.utils.log import Log
 
 
 class ExcelParser:
