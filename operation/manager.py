@@ -29,6 +29,7 @@ class OperationManager(object):
             opt_module = getattr(module_t, operation_name)
             c = getattr(opt_module, operation_name.title())
             operation = object.__new__(c)
+            operation.__init__()
         except Exception as e:
             Log.e(e)
             operation = None

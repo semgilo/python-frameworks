@@ -68,13 +68,15 @@ class ExcelParser:
 
         for i in range(rowcount):
             if i == 0:
+                pass
+            elif i == 1:
                 self._fields = table.row_values(i)
-            elif i is 1:
+            elif i == 2:
                 self._types = table.row_values(i)
             else:
                 line = table.row_values(i)
                 line_value = self.parse_line(line)
-                line_id = line_value['id']
+                line_id = line_value[self._fields[0]]
                 if line_id is None:
                     Log.e('The id field must be nonil expected')
                     continue
