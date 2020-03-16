@@ -49,3 +49,15 @@ class Log:
             Log._print("------------------------------------------", Log.BLUE)
             Log._print(s, Log.BLUE)
             Log._print("------------------------------------------", Log.BLUE)
+
+    @staticmethod
+    def dump(m, deepth=0, format=True):
+        for (k, v) in m.items():
+            pre = ""
+            for i in range(0, deepth):
+                pre += "    "
+            if type(v) == dict:
+                Log.i("%s%s: " % (pre, k))
+                Log.dump(v, deepth + 1)
+            else:
+                Log.i("%s%s: %s" % (pre, k, str(v)))
