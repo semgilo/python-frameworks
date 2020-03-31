@@ -52,12 +52,16 @@ class Log:
 
     @staticmethod
     def dump(m, deepth=0, format=True):
+        if deepth == 0:
+            Log._print("---------------dump----------------", Log.RESET)
         for (k, v) in m.items():
             pre = ""
             for i in range(0, deepth):
                 pre += "    "
             if type(v) == dict:
-                Log.i("%s%s: " % (pre, k))
+                Log._print("%s%s: " % (pre, k), Log.RESET)
                 Log.dump(v, deepth + 1)
             else:
-                Log.i("%s%s: %s" % (pre, k, str(v)))
+                Log._print("%s%s: %s" % (pre, k, str(v)), Log.RESET)
+        if deepth == 0:
+            Log._print("-----------------------------------", Log.RESET)
