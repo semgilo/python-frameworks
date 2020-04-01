@@ -1,5 +1,6 @@
 import configparser
 
+
 class MyConfigParser(configparser.ConfigParser):
     def __init__(self, defaults=None, allow_no_value=True):
         configparser.ConfigParser.__init__(self, defaults=defaults,
@@ -11,6 +12,7 @@ class MyConfigParser(configparser.ConfigParser):
 
 class ConfigHelper:
     """docstring for ConfigHelper"""
+
     def __init__(self):
         super(ConfigHelper, self).__init__()
         self._cps = []
@@ -30,7 +32,8 @@ class ConfigHelper:
         return None
 
     def options(self, section):
+        options = []
         for cp in self._cps:
             if cp.has_section(section):
-                return cp.options(section)
-        return None
+                options = options + cp.options(section)
+        return options

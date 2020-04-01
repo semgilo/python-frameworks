@@ -10,6 +10,7 @@ from frameworks.utils.excel2json import ExcelParser
 
 import configparser
 
+
 class MyConfigParser(configparser.ConfigParser):
     def __init__(self, defaults=None, allow_no_value=True):
         configparser.ConfigParser.__init__(self, defaults=defaults,
@@ -21,6 +22,7 @@ class MyConfigParser(configparser.ConfigParser):
 
 class FileUtils:
     """docstring for FileUtils"""
+
     def __init__(self):
         super(FileUtils, self).__init__()
 
@@ -54,7 +56,7 @@ class FileUtils:
                 new_dst = os.path.join(dst, item)
                 if not os.path.isdir(new_dst):
                     os.makedirs(new_dst)
-                    FileUtils.copy_files_in_dir(path, new_dst, rules)
+                FileUtils.copy_files_in_dir(path, new_dst, rules)
 
     @staticmethod
     def copy_files_in_dir_with_replacement(src, old, new):
@@ -68,8 +70,6 @@ class FileUtils:
 
             if os.path.isdir(path):
                 FileUtils.copy_files_in_dir_with_replacement(path, old, new)
-
-
 
     @staticmethod
     def copy_files_in_dir_if_newer(src, dst, cpstat=False):
@@ -170,7 +170,6 @@ class FileUtils:
         json.dump(data_map, file)
         file.close()
 
-
     @staticmethod
     def decode_to_utf8(buff):
         encoding_type = chardet.detect(buff)
@@ -184,7 +183,6 @@ class FileUtils:
 
         buff = buff.encode('utf-8')
         return buff
-
 
     @staticmethod
     def change_file_to_utf8(path):
