@@ -65,3 +65,9 @@ class Log:
                 Log._print("%s%s: %s" % (pre, k, str(v)), Log.RESET)
         if deepth == 0:
             Log._print("-----------------------------------", Log.RESET)
+
+    @staticmethod
+    def write_to_file(filepath, content):
+        file = open(filepath, "a+")
+        file.write(content)
+        file.close()
