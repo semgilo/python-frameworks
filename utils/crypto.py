@@ -1,5 +1,5 @@
 import struct
-
+import sys
 ACSII_A = 65
 ACSII_Z = 90
 ACSII_a = 97
@@ -160,3 +160,14 @@ class Crypto:
             new_content = new_content + str(chr(value))
 
         return new_content
+
+
+    @staticmethod
+    def encrypt_by_xor(content, encode_key):
+        var = content.encode("utf-8")
+        key = encode_key.encode("utf-8")
+        key = key[:len(var)]
+        int_var = int.from_bytes(var, sys.byteorder)
+        int_key = int.from_bytes(key, sys.byteorder)
+        int_enc = int_var ^ int_key
+        return str(int_enc.to_bytes(len(var), sys.byteorder))
