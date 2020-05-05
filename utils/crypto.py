@@ -31,6 +31,7 @@ def _str2long(s, w):
 
 class Crypto:
     """docstring for Crypto"""
+
     def __init__(self):
         super(Crypto, self).__init__()
 
@@ -50,10 +51,12 @@ class Crypto:
             e = sum >> 2 & 3
             for p in range(n):
                 y = v[p + 1]
-                v[p] = (v[p] + ((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4) ^ (sum ^ y) + (k[p & 3 ^ e] ^ z))) & 0xffffffff
+                v[p] = (v[p] + ((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4)
+                                ^ (sum ^ y) + (k[p & 3 ^ e] ^ z))) & 0xffffffff
                 z = v[p]
             y = v[0]
-            v[n] = (v[n] + ((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4) ^ (sum ^ y) + (k[n & 3 ^ e] ^ z))) & 0xffffffff
+            v[n] = (v[n] + ((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4)
+                            ^ (sum ^ y) + (k[n & 3 ^ e] ^ z))) & 0xffffffff
             z = v[n]
             q -= 1
         return _long2str(v, False)
@@ -73,10 +76,12 @@ class Crypto:
             e = sum >> 2 & 3
             for p in range(n, 0, -1):
                 z = v[p - 1]
-                v[p] = (v[p] - ((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4) ^ (sum ^ y) + (k[p & 3 ^ e] ^ z))) & 0xffffffff
+                v[p] = (v[p] - ((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4)
+                                ^ (sum ^ y) + (k[p & 3 ^ e] ^ z))) & 0xffffffff
                 y = v[p]
             z = v[n]
-            v[0] = (v[0] - ((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4) ^ (sum ^ y) + (k[0 & 3 ^ e] ^ z))) & 0xffffffff
+            v[0] = (v[0] - ((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4)
+                            ^ (sum ^ y) + (k[0 & 3 ^ e] ^ z))) & 0xffffffff
             y = v[0]
             sum = (sum - _DELTA) & 0xffffffff
         return _long2str(v, True)
@@ -94,13 +99,11 @@ class Crypto:
         new_content = ''
         debug = False
         index = 0
-        # if '\\' in content:
-        #     debug = True
         for c in content:
             value = ord(c)
-            if c == '\\':
-                new_content = new_content + str(chr(value))
-                continue
+            # if c == '\\':
+            #     new_content = new_content + str(chr(value))
+            #     continue
             key_index = index % len(encode_key)
             key_bit_value = ord(encode_key[key_index])
             delt_value = 0
@@ -161,13 +164,51 @@ class Crypto:
 
         return new_content
 
-
     @staticmethod
     def encrypt_by_xor(content, encode_key):
         var = content.encode("utf-8")
         key = encode_key.encode("utf-8")
-        key = key[:len(var)]
-        int_var = int.from_bytes(var, sys.byteorder)
-        int_key = int.from_bytes(key, sys.byteorder)
-        int_enc = int_var ^ int_key
-        return str(int_enc.to_bytes(len(var), sys.byteorder))
+        i = 0
+        ret = "".encode("utf-8")
+        for b in var:
+            k = key[i % len(key)]
+            r = b ^ k
+            bs = bytes([r])
+            ret += bs
+            # print("%s ^ %s = %s(%s)(%s)(%s)" % (b, k, r, chr(r), s, s2))
+            # ret += str(chr(r))
+            i += 1
+        # print(ret2)
+        return ret
+
+    def encrypt_file_full(path, key):
+        file = open(path, "rb+")
+        buff = file.read()
+        key_index = 0
+        new_buff = '' + key
+
+        for i in range(0, len(buff)):
+            bit = chr(ord(buff[i]) ^ ord(key[i % len(key)]))
+            # print i, str(ord(buff[i])) + ' => ' + str(ord(bit)), buff[i] + ' => ' + bit
+            new_buff = new_buff + bit
+
+        file.seek(0)
+        file.write(len(key))
+        file.write(key)
+        file.write(new_buff)
+        file.close()
+
+    def decrypt_file_full(path, key):
+        file = open(path, "rb+")
+        buff = file.read()
+        key_index = 0
+        new_buff = ''
+
+        for i in range(0, len(buff) - len(key)):
+            bit = chr(ord(buff[i + len(key)]) ^ ord(key[i % len(key)]))
+            # print i, str(ord(buff[i])) + ' => ' + str(ord(bit)), buff[i] + ' => ' + bit
+            new_buff = new_buff + bit
+
+        file.seek(0)
+        file.write(new_buff)
+        file.close()
