@@ -128,6 +128,14 @@ class FileUtils:
         pass
 
     @staticmethod
+    def get_file_md5(path):
+        with open(path, 'rb') as fp:
+            hl = hashlib.md5()
+            hl.update(fp.read())
+            return hl.hexdigest()
+
+
+    @staticmethod
     def save_json_file(path, data):
         with open(path, 'w') as json_file:
             json_file.write(json.dumps(data))
