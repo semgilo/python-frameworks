@@ -97,6 +97,37 @@ class FileUtils:
                 FileUtils.copy_files_in_dir_if_newer(path, new_dst, cpstat)
 
     @staticmethod
+    def copy_files_in_dir_if_changed(src, dst):
+        if not os.path.isdir(src):
+            return
+
+        if not os.path.isdir(dst):
+            os.makedirs(dst)
+
+        for item in os.listdir(src):
+            path = os.path.join(src, item)
+            if os.path.isfile(path):
+                copy_dst = dst
+                dstpath = os.path.join(dst, item)
+                md5 = FileUtils.get_file_md5(path)
+                dstmd5 = 0
+                if os.path.exists(dstpath):
+                    dstmd5 = FileUtils.get_file_md5(dstpath)
+
+                if md5 != dstmd5:
+                    shutil.copy(path, copy_dst)
+                    Log.i("{0} done".format(path))
+                else:
+                    Log.i("{0} don't need copy".format(path))
+
+            if os.path.isdir(path):
+                new_dst = os.path.join(dst, item)
+                FileUtils.copy_files_in_dir_if_changed(path, new_dst, cpstat)
+
+
+
+
+    @staticmethod
     def remove_files_in_dir(src, ext):
         for item in os.listdir(src):
             path = os.path.join(src, item)
