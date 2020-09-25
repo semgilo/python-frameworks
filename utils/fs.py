@@ -122,7 +122,7 @@ class FileUtils:
 
             if os.path.isdir(path):
                 new_dst = os.path.join(dst, item)
-                FileUtils.copy_files_in_dir_if_changed(path, new_dst, cpstat)
+                FileUtils.copy_files_in_dir_if_changed(path, new_dst)
 
 
 
