@@ -17,7 +17,12 @@ class Crypto:
     def have_encrypt(path, sign):
         bytesFile = open(path, "rb+")
         buff = bytesFile.read()
-        pre_sign = str(buff[0:len(sign)])
+        pre_sign = ""
+        try:
+            pre_sign = str(buff[0:len(sign)], encoding='utf-8')
+        except Exception as e:
+            pre_sign = ""
+        
         bytesFile.close()
         return pre_sign == sign
 
