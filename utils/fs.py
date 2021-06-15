@@ -178,8 +178,8 @@ class FileUtils:
             return data
 
     @staticmethod
-    def load_file(path, encoding = "utf8"):
-        file = open(path, "r", encoding = encoding)
+    def load_file(path, encoding = 'utf8'):
+        file = open(path, "r", encoding = encoding, newline='')
         buff = file.read()
         file.close()
         return buff
@@ -228,6 +228,7 @@ class FileUtils:
         file = open(path, "rb")
         buff = file.read()
         encoding_type = chardet.detect(buff)
+        print(encoding_type)
         try:
             buff = buff.decode(encoding_type['encoding'])
         except Exception as e:
@@ -255,17 +256,17 @@ class FileUtils:
     @staticmethod
     def remove_local_class(path):
         FileUtils.change_file_to_utf8(path)
-        buff = FileUtils.load_file(path, "utf8")
+        buff = FileUtils.load_file(path)
         pattern = re.compile("local (C[A-Z]\w+)[ ]*=[ ]*([\w.]+)")
         groups = pattern.findall(buff)
         for group in groups:
-            if group[1] != "class":
+            if group[1] != "class" and group[1] != "require":
                 print(group)
-                buff = buff.replace("local {0} = {1}\n".format(group[0], group[1]), "")
+                buff = re.sub(r"local {0} = {1}[\r\n]*".format(group[0], group[1]), "", buff)
                 buff = re.sub(r"\b{0}\b".format(group[0]), group[1], buff)
 
         name, ext = os.path.splitext(path)
-        file = open(path, "w")
+        file = open(path, "w", encoding='utf8', newline='')
         file.write(buff)
         file.close()
 
