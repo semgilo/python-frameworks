@@ -178,8 +178,8 @@ class FileUtils:
             return data
 
     @staticmethod
-    def load_file(path):
-        file = open(path, "r")
+    def load_file(path, encoding = "utf8"):
+        file = open(path, "r", encoding = encoding)
         buff = file.read()
         file.close()
         return buff
@@ -234,7 +234,10 @@ class FileUtils:
             try:
                 buff = buff.decode('GB18030')
             except Exception as e:
-                raise e
+                try:
+                    buff = buff.decode('utf-8')
+                except Exception as e:
+                    raise e
 
         buff = buff.encode('utf-8')
         file.close()
@@ -251,14 +254,15 @@ class FileUtils:
 
     @staticmethod
     def remove_local_class(path):
-        buff = FileUtils.load_file(path)
+        FileUtils.change_file_to_utf8(path)
+        buff = FileUtils.load_file(path, "utf8")
         pattern = re.compile("local (C[A-Z]\w+)[ ]*=[ ]*([\w.]+)")
         groups = pattern.findall(buff)
         for group in groups:
             if group[1] != "class":
                 print(group)
                 buff = buff.replace("local {0} = {1}\n".format(group[0], group[1]), "")
-                buff = buff.replace(group[0], group[1])
+                buff = re.sub(r"\b{0}\b".format(group[0]), group[1], buff)
 
         name, ext = os.path.splitext(path)
         file = open(path, "w")
