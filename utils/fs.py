@@ -248,3 +248,30 @@ class FileUtils:
         cp = MyConfigParser()
         cp.read(path)
         return cp
+
+    @staticmethod
+    def remove_local_class(path):
+        buff = FileUtils.load_file(path)
+        pattern = re.compile("local (C[A-Z]\w+)[ ]*=[ ]*([\w.]+)")
+        groups = pattern.findall(buff)
+        for group in groups:
+            if group[1] != "class":
+                print(group)
+                buff = buff.replace("local {0} = {1}\n".format(group[0], group[1]), "")
+                buff = buff.replace(group[0], group[1])
+
+        name, ext = os.path.splitext(path)
+        file = open(path, "w")
+        file.write(buff)
+        file.close()
+
+    @staticmethod
+    def remove_local_class_in_dir(src, rules=None):
+        for item in os.listdir(src):
+            path = os.path.join(src, item)
+            if os.path.isfile(path) and FileUtils.check_path_in_rules(path, rules):
+                print(path)
+                FileUtils.remove_local_class(path)
+
+            if os.path.isdir(path):
+                FileUtils.remove_local_class_in_dir(path, rules)
