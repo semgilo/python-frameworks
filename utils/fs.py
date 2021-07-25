@@ -260,7 +260,7 @@ class FileUtils:
         pattern = re.compile("local (C[A-Z]\w+)[ ]*=[ ]*([\w.]+)")
         groups = pattern.findall(buff)
         for group in groups:
-            if group[1] != "class" and group[1] != "require":
+            if group[1] != "class" and group[1] != "require" and group[1] != "reloadFile":
                 print(group)
                 buff = re.sub(r"local {0} = {1}[\r\n]*".format(group[0], group[1]), "", buff)
                 buff = re.sub(r"\b{0}\b".format(group[0]), group[1], buff)
@@ -280,3 +280,28 @@ class FileUtils:
 
             if os.path.isdir(path):
                 FileUtils.remove_local_class_in_dir(path, rules)
+
+    @staticmethod
+    def gen_list_file(path, root):
+        list_file_path = os.path.join(path, "list.lua")
+        file = open(list_file_path, "w")
+        file.write("return {\n")
+        for root, dirs, files in os.walk(path, topdown=False):
+            for name in files:
+                file_path = os.path.join(root, name)
+                file.write("\t\"{0}\"\n".format(name))
+        file.write("}")
+
+    @staticmethod
+    def gen_list_if_exist(path, root=""):
+        if root is "":
+            root = path
+
+        for item in os.listdir(path):
+            item_path = os.path.join(path, item)
+            if os.path.isdir(item_path):
+                list_path = os.path.join(item_path, "list.lua")
+                if os.path.exists(list_path):   
+                    FileUtils.gen_list_file(item_path, root);
+                else:
+                    FileUtils.gen_list_if_exist(item_path, root)
