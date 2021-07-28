@@ -282,7 +282,7 @@ class FileUtils:
                 FileUtils.remove_local_class_in_dir(path, rules)
 
     @staticmethod
-    def gen_list_file(path, root):
+    def gen_list_file(path):
         list_file_path = os.path.join(path, "list.lua")
         file = open(list_file_path, "w")
         file.write("return {\n")
@@ -293,15 +293,22 @@ class FileUtils:
         file.write("}")
 
     @staticmethod
-    def gen_list_if_exist(path, root=""):
-        if root is "":
-            root = path
-
+    def gen_list_if_exist(path):
         for item in os.listdir(path):
             item_path = os.path.join(path, item)
             if os.path.isdir(item_path):
                 list_path = os.path.join(item_path, "list.lua")
                 if os.path.exists(list_path):   
-                    FileUtils.gen_list_file(item_path, root);
+                    FileUtils.gen_list_file(item_path)
                 else:
-                    FileUtils.gen_list_if_exist(item_path, root)
+                    FileUtils.gen_list_if_exist(item_path)
+
+    @staticmethod
+    def gen_list(path, root=""):
+        list_path = os.path.join(path, "list.lua")
+        if not os.path.exists(list_path):
+            file = open(list_path, "wb")
+            file.close()
+
+        FileUtils.gen_list_file(path)
+
