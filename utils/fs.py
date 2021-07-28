@@ -288,8 +288,9 @@ class FileUtils:
         file.write("return {\n")
         for root, dirs, files in os.walk(path, topdown=False):
             for name in files:
-                file_path = os.path.join(root, name)
-                file.write("\t\"{0}\"\n".format(name))
+                if name != "list.lua":
+                    file_path = os.path.join(root, name)
+                    file.write("\t\"{0}\",\n".format(name))
         file.write("}")
 
     @staticmethod
