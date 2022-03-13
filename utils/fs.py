@@ -97,7 +97,7 @@ class FileUtils:
                 FileUtils.copy_files_in_dir_if_newer(path, new_dst, cpstat)
 
     @staticmethod
-    def copy_files_in_dir_if_changed(src, dst):
+    def copy_files_in_dir_if_changed(src, dst, ext=""):
         if not os.path.isdir(src):
             return
 
@@ -107,22 +107,21 @@ class FileUtils:
         for item in os.listdir(src):
             path = os.path.join(src, item)
             if os.path.isfile(path):
-                copy_dst = dst
-                dstpath = os.path.join(dst, item)
+                dstpath = os.path.join(dst, item + ext)
                 md5 = FileUtils.get_file_md5(path)
                 dstmd5 = 0
                 if os.path.exists(dstpath):
                     dstmd5 = FileUtils.get_file_md5(dstpath)
 
                 if md5 != dstmd5:
-                    shutil.copy(path, copy_dst)
+                    shutil.copy(path, dstpath)
                     Log.i("{0} done".format(path))
                 else:
                     Log.i("{0} don't need copy".format(path))
 
             if os.path.isdir(path):
                 new_dst = os.path.join(dst, item)
-                FileUtils.copy_files_in_dir_if_changed(path, new_dst)
+                FileUtils.copy_files_in_dir_if_changed(path, new_dst, ext)
 
 
 
@@ -288,10 +287,13 @@ class FileUtils:
         file.write("return {\n")
         for root, dirs, files in os.walk(path, topdown=False):
             for name in files:
-                if name != "list.lua":
+                ext = os.path.splitext(name)[1]
+                print(name, ext)
+                if name != "list.lua" and ext != ".lua.meta" and ext != ".meta" and name != ".DS_Store":
                     file_path = os.path.join(root, name)
                     file.write("\t\"{0}\",\n".format(name))
         file.write("}")
+        file.close()
 
     @staticmethod
     def gen_list_if_exist(path):
